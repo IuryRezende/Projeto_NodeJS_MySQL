@@ -32,7 +32,7 @@ conexao.connect((erro)=>{
 
 // rota para response hello world
 app.get("/", function(req, res){
-    res.render();
+    res.render("formulario");
 });
 
 //servidor
