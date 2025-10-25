@@ -1,0 +1,31 @@
+{
+  "name": "projeto_basico_nodejs",
+  "version": "1.0.0",
+  "description": "Projeto NodeJS e MySQL",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/IuryRezende/Projeto_NodeJS_MySQL.git"
+  },
+  "keywords": [
+    "express",
+    "express-handlebars",
+    "bootstrap",
+    "mysql"
+  ],
+  "author": "Iury Rezende",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/IuryRezende/Projeto_NodeJS_MySQL/issues"
+  },
+  "homepage": "https://github.com/IuryRezende/Projeto_NodeJS_MySQL#readme",
+  "dependencies": {
+    "express": "^5.1.0",
+    "express-handlebars": "^8.0.3",
+    "mysql2": "^3.15.3",
+    "nodemon": "^3.1.10"
+  }
+}
