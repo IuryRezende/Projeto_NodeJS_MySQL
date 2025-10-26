@@ -10,6 +10,11 @@ const mysql2 = require("mysql2");
 // criando o app
 const app = express();
 
+// add bootstrap
+app.use("/bootstrap", express.static("./node_modules/bootstrap/dist"));
+
+app.use("/css", express.static("./css"));
+
 //configuração do express-handlebars
 app.engine("handlebars", engine());
 app.set("view engine", "handlebars");
@@ -19,8 +24,9 @@ app.set("views", "./views");
 const conexao = mysql2.createConnection({
     host:"localhost",
     user:"root",
+    port: "3307",
     password:"Iuriza060423!",
-    database: "projeto"
+    database: "projeto_node"
 });
 
 //Teste de Conexão
@@ -30,9 +36,11 @@ conexao.connect((erro)=>{
     console.log("Deu certo");
 })
 
+
 // rota para response hello world
 app.get("/", function(req, res){
     res.render("formulario");
+
 });
 
 //servidor
