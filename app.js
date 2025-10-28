@@ -1,6 +1,7 @@
 // importando o módulo express-handlebars
 const { engine } = require("express-handlebars");
 
+const file_upload = require("express-fileupload");
 // importando o módulo express
 const express = require("express");
 
@@ -9,6 +10,8 @@ const mysql2 = require("mysql2");
 
 // criando o app
 const app = express();
+
+app.use(file_upload());
 
 // add bootstrap
 app.use("/bootstrap", express.static("./node_modules/bootstrap/dist"));
@@ -19,6 +22,9 @@ app.use("/css", express.static("./css"));
 app.engine("handlebars", engine());
 app.set("view engine", "handlebars");
 app.set("views", "./views");
+
+app.use(express.json());
+app.use(express.urlencoded({extended: false}));
 
 // criando conexão
 const conexao = mysql2.createConnection({
@@ -42,6 +48,26 @@ app.get("/", function(req, res){
     res.render("formulario");
 
 });
+
+app.post("/cadastrar", (req, res)=>{
+    let named = req.body.named;
+    let price = req.body.price;
+    let imaged = req.files.imaged.name;
+
+    let sql = 
+    `INSERT INTO products (named, price, imaged)
+        VALUES ("${named}", ${price}, "${imaged}")`;
+
+    // Executar sql
+    conexao.query(sql, function(erro, retorn){
+        if(erro) throw erro;
+
+        req.files.imaged.mv(__dirname+"/images/"+req.files.imaged.name);
+        console.log(retorn);
+    })
+
+    res.redirect("/");
+})
 
 //servidor
 app.listen(8080);

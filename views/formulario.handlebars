@@ -5,10 +5,10 @@
     <div class="container">
         <div class="row">
             <div class="col-6 offset-3">
-                <form>
-                    <input type="text"   class="form-control" placeholder="Nome do produto">
-                    <input type="number" class="form-control" placeholder="Valor do produto">
-                    <input type="file"   class="form-control" >
+                <form action="/cadastrar" method="post" enctype="multipart/form-data">
+                    <input type="text"   name= "named"class="form-control" placeholder="Nome do produto">
+                    <input type="number" name= "price"class="form-control" placeholder="Valor do produto" step="0.01" min="0">
+                    <input type="file"   name= "imaged"class="form-control" >
                     <input type="submit" class="btn btn-secondary" value="cadastrar">
 
                 </form>
