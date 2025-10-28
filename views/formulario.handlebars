@@ -1,7 +1,6 @@
 
 <main>
     {{!-- Formulário --}}
-
     <div class="container">
         <div class="row">
             <div class="col-6 offset-3">
@@ -13,6 +12,23 @@
 
                 </form>
             </div>
+        </div>
+    </div>
+
+    {{!-- Listagem de produtos --}}
+    <div class="container">
+        <div class="row">
+            {{#each produtos}}
+            <div class="col-12 col-sm-6 col-md-4 col-lg-2">
+                <div class="card" style="background-color: brown; border: 2px, solid, whitesmoke; color: white; overflow: hidden;">
+                    <img src="../images/{{imaged}}">
+                    <p>{{named}}</p>
+                    <p>R${{price}}</p>
+                    <a href="#">Alterar</a>
+                    <a href="#">Remover</a>
+                </div>
+            </div>
+            {{/each}}
         </div>
     </div>
 </main>

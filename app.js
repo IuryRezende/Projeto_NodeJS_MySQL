@@ -18,6 +18,8 @@ app.use("/bootstrap", express.static("./node_modules/bootstrap/dist"));
 
 app.use("/css", express.static("./css"));
 
+app.use("/images", express.static("./images"));
+
 //configuração do express-handlebars
 app.engine("handlebars", engine());
 app.set("view engine", "handlebars");
@@ -45,7 +47,12 @@ conexao.connect((erro)=>{
 
 // rota para response hello world
 app.get("/", function(req, res){
-    res.render("formulario");
+    let sql = "SELECT * FROM products";
+
+    conexao.query(sql, function(erro, retorno){
+        if (erro) throw erro;
+        res.render("formulario", {produtos:retorno});
+    });
 
 });
 
@@ -59,11 +66,11 @@ app.post("/cadastrar", (req, res)=>{
         VALUES ("${named}", ${price}, "${imaged}")`;
 
     // Executar sql
-    conexao.query(sql, function(erro, retorn){
+    conexao.query(sql, function(erro, retorno){
         if(erro) throw erro;
 
         req.files.imaged.mv(__dirname+"/images/"+req.files.imaged.name);
-        console.log(retorn);
+        console.log(retorno);
     })
 
     res.redirect("/");
