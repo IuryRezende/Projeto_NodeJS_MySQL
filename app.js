@@ -33,7 +33,7 @@ const conexao = mysql2.createConnection({
     host:"localhost",
     user:"root",
     port: "3307",
-    password:"Iuriza060423!",
+    password: "Iuriza060423!",
     database: "projeto_node"
 });
 
@@ -44,38 +44,83 @@ conexao.connect((erro)=>{
     console.log("Deu certo");
 })
 
+// página padrão
+app.get("/", (req, res) => {
+    res.render("index", { layout: "index" });
+})
 
-// rota para response hello world
-app.get("/", function(req, res){
-    let sql = "SELECT * FROM products";
+// rota registro
+app.get("/register", (req, res) => {
+    res.render("register", { layout: "index" });
+})
 
-    conexao.query(sql, function(erro, retorno){
+// rota login
+app.get("/login", (req, res) => {
+    res.render("login", { layout: "index" });
+})
+
+app.post("/login", (req, res)=>{
+    const usuario = req.body.usuario;
+    const senha = req.body.senha;
+
+    if (usuario == "admin" && senha == "0604")
+    {
+        res.redirect("/formulario");
+    } else {
+        res.send("<h2>Usuário ou senha inválidos! <a href='/'>Voltar</a></h2>");
+    }
+})
+
+app.post("/register", (req, res) => {
+    const user = req.body.user_r;
+    const password = req.body.password_r;
+
+    let sql =`INSERT INTO users (userd, passwordd) VALUES ("${user}", "${password}")`;
+
+    conexao.query(sql, (erro, retorno) => {
+        if (erro) {
+            return res.send(`
+                <script>
+                    alert("Fatal Error");
+                    window.locale.href = "/";
+                </script>
+                `)
+        };
+        console.log("Deu certo");
+        res.redirect("/login");
+    })
+})
+
+
+// rota para formulario
+app.get("/formulario", (req, res) => {
+    let sql = `SELECT * FROM products`;
+    conexao.query(sql, (erro, retorno) => {
         if (erro) throw erro;
-        res.render("formulario", {produtos:retorno});
-    });
+        res.render("formulario", { produtos: retorno, layout: "main"});
+    })
+})
 
-});
 
-app.post("/cadastrar", (req, res)=>{
+app.post("/formulario", (req, res)=>{
     let named = req.body.named;
     let price = req.body.price;
     let imaged = req.files.imaged.name;
-
+    
     let sql = 
     `INSERT INTO products (named, price, imaged)
-        VALUES ("${named}", ${price}, "${imaged}")`;
-
+    VALUES ("${named}", ${price}, "${imaged}")`;
+    
     // Executar sql
     conexao.query(sql, function(erro, retorno){
         if(erro) throw erro;
-
+        
         req.files.imaged.mv(__dirname+"/images/"+req.files.imaged.name);
         console.log(retorno);
     })
-
-    res.redirect("/");
+    
+    res.redirect("/formulario");
 })
-
 //servidor
 app.listen(8080);
 
