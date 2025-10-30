@@ -46,7 +46,7 @@ conexao.connect((erro)=>{
 
 // página padrão
 app.get("/", (req, res) => {
-    res.render("index", { layout: "index" });
+    res.render("login", { layout: "index" });
 })
 
 // rota registro
@@ -55,47 +55,84 @@ app.get("/register", (req, res) => {
 })
 
 // rota login
-app.get("/login", (req, res) => {
-    res.render("login", { layout: "index" });
-})
-
+let active_user;
 app.post("/login", (req, res)=>{
-    const usuario = req.body.usuario;
-    const senha = req.body.senha;
+    const usuario = req.body.user;
+    active_user = usuario;
+    const senha = req.body.password;
 
-    if (usuario == "admin" && senha == "0604")
+    let sql = `SELECT userd, passwordd 
+    FROM users WHERE userd = ?`;
+
+    const [rows] = conexao.execute(sql, [usuario]);
+    const pass_true = bcrypt.compare(senha, rows[0].passwordd)
+
+    if (pass_true)
     {
+        console.log("Login permitido✅");
         res.redirect("/formulario");
     } else {
+        console.log("Login permitido✅");
         res.send("<h2>Usuário ou senha inválidos! <a href='/'>Voltar</a></h2>");
     }
+        
 })
 
 app.post("/register", (req, res) => {
     const user = req.body.user_r;
     const password = req.body.password_r;
+    
+    if (!user || user.trim() === "")
+    {
+        return res.status(400).json({ erro: "Usuário obrigatório" });
+    }
+    if (!password || password.trim() === "")
+    {
+        return res.status(400).json({ erro: "Senha obrigatória" });
 
-    let sql =`INSERT INTO users (userd, passwordd) VALUES ("${user}", "${password}")`;
+    }
+        
+    conexao.execute(`SELECT COUNT(*) AS total FROM users WHERE UPPER(userd) = UPPER(?);`, [user], (erro, retorno) => {
+        if (erro) throw erro;
+        const [rows] = retorno;
+        console.log(rows.total);
 
-    conexao.query(sql, (erro, retorno) => {
-        if (erro) {
-            return res.send(`
-                <script>
-                    alert("Fatal Error");
-                    window.locale.href = "/";
-                </script>
-                `)
-        };
-        console.log("Deu certo");
-        res.redirect("/login");
-    })
+        if (rows.total > 0)
+        {
+            return res.status(409).json({ erro: "Usuário existente" });
+        }
+
+        const hash = bcrypt.hash(password, 10);
+        let sql =`INSERT INTO users (userd, passwordd) VALUES ( ?, ?);`;
+    
+        conexao.execute(sql, [user, hash],(erro) => {
+            if (erro) {
+                return res.send(`
+                    <script>
+                        alert("Fatal Error");
+                        window.locale.href = "/register";
+                    </>
+                    `)
+            };
+            // console.log("Deu certo");
+            res.redirect("/");
+        })
+    });
 })
 
 
 // rota para formulario
 app.get("/formulario", (req, res) => {
-    let sql = `SELECT * FROM products`;
-    conexao.query(sql, (erro, retorno) => {
+    let sql = `
+    SELECT 
+        p.named,
+        p.price,
+        p.imaged,
+        u.userd
+    FROM products p
+    JOIN users u ON u.cod = p.user_cod
+    WHERE u.userd = ?;`;
+    conexao.execute(sql, [active_user],(erro, retorno) => {
         if (erro) throw erro;
         res.render("formulario", { produtos: retorno, layout: "main"});
     })
