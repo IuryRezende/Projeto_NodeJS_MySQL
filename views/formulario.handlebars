@@ -21,11 +21,17 @@
             {{#each produtos}}
             <div class="col-12 col-sm-6 col-md-4 col-lg-2">
                 <div class="card">
-                    <img src="../images/{{imaged}}">
-                    <p>{{named}}</p>
-                    <p>R${{price}}</p>
-                    <a href="#">Alterar</a>
-                    <a href="#">Remover</a>
+                    <div class="card-image">
+                        <img src="../images/{{imaged}}">
+                    </div>
+                    <div class="info">
+                        <p>{{named}}</p>
+                        <p>R${{price}}</p>
+                    </div>
+                    <div class="card-btn">
+                        <a href="#" class="btn btn-warning">Alterar</a>
+                        <a href="#" class="btn btn-danger">Remover</a>
+                    </div>
                 </div>
             </div>
             {{/each}}

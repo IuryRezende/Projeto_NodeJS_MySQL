@@ -1,13 +1,10 @@
 // importando o módulo express-handlebars
 const { engine } = require("express-handlebars");
-
 const file_upload = require("express-fileupload");
-// importando o módulo express
 const express = require("express");
-
-// importando o módulo mysql2
 const mysql2 = require("mysql2");
-
+const bcrypt = require("bcrypt");
+const fs = require("fs");
 // criando o app
 const app = express();
 
@@ -41,7 +38,7 @@ const conexao = mysql2.createConnection({
 conexao.connect((erro)=>{
     if(erro) throw erro;
 
-    console.log("Deu certo");
+    console.log("Banco conectado✅");
 })
 
 // página padrão
@@ -58,63 +55,53 @@ app.get("/register", (req, res) => {
 let active_user;
 app.post("/login", (req, res)=>{
     const usuario = req.body.user;
-    active_user = usuario;
     const senha = req.body.password;
+    
 
     let sql = `SELECT userd, passwordd 
     FROM users WHERE userd = ?`;
 
-    const [rows] = conexao.execute(sql, [usuario]);
-    const pass_true = bcrypt.compare(senha, rows[0].passwordd)
+    conexao.execute(sql, [usuario], (erro, retorno) => {
+        if (erro) throw erro;
 
-    if (pass_true)
-    {
-        console.log("Login permitido✅");
-        res.redirect("/formulario");
-    } else {
-        console.log("Login permitido✅");
-        res.send("<h2>Usuário ou senha inválidos! <a href='/'>Voltar</a></h2>");
-    }
-        
+        const [rows] = retorno;
+        const pass_true = bcrypt.compare(senha, rows.passwordd)
+        if (pass_true)
+        {
+            console.log("Login permitido✅");
+            active_user = usuario;
+            res.redirect("/formulario");
+        } else {
+            console.log("Login inválido❌");
+            res.send("<h2>Usuário ou senha inválidos! <a href='/'>Voltar</a></h2>");
+        }
+    });
 })
 
 app.post("/register", (req, res) => {
     const user = req.body.user_r;
     const password = req.body.password_r;
-    
-    if (!user || user.trim() === "")
-    {
-        return res.status(400).json({ erro: "Usuário obrigatório" });
-    }
-    if (!password || password.trim() === "")
-    {
-        return res.status(400).json({ erro: "Senha obrigatória" });
-
-    }
-        
+       
     conexao.execute(`SELECT COUNT(*) AS total FROM users WHERE UPPER(userd) = UPPER(?);`, [user], (erro, retorno) => {
         if (erro) throw erro;
         const [rows] = retorno;
-        console.log(rows.total);
 
         if (rows.total > 0)
         {
             return res.status(409).json({ erro: "Usuário existente" });
         }
 
-        const hash = bcrypt.hash(password, 10);
+        const hashed = 0;
+
+        async ()=>{
+            hashed = await bcrypt.hash(password, 10);
+        }
+
         let sql =`INSERT INTO users (userd, passwordd) VALUES ( ?, ?);`;
     
-        conexao.execute(sql, [user, hash],(erro) => {
-            if (erro) {
-                return res.send(`
-                    <script>
-                        alert("Fatal Error");
-                        window.locale.href = "/register";
-                    </>
-                    `)
-            };
-            // console.log("Deu certo");
+        conexao.execute(sql, [user, hashed], (erro, retorno) => {
+            if (erro) throw erro;
+            console.log(retorno);
             res.redirect("/");
         })
     });
