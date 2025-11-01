@@ -4,9 +4,26 @@ const file_upload = require("express-fileupload");
 const express = require("express");
 const mysql2 = require("mysql2");
 const bcrypt = require("bcrypt");
-const fs = require("fs");
+const fs = require("fs").promises;
 // criando o app
 const app = express();
+
+async function apagar_imagem(url){
+    try {
+        await fs.unlink(__dirname+"/images/"+url);
+        console.log(`Arquivo ${url} deletado✅`);
+    } catch (error) {
+        console.log(`Error: `, error);
+    }
+}
+
+function verify_login(req, res, next){
+    if(!active_user)
+    {
+        return res.redirect("/");
+    }
+    next();
+}
 
 app.use(file_upload());
 
@@ -43,16 +60,17 @@ conexao.connect((erro)=>{
 
 // página padrão
 app.get("/", (req, res) => {
-    res.render("login", { layout: "index" });
+    res.render("login", { layout: "login_page" });
 })
 
 // rota registro
 app.get("/register", (req, res) => {
-    res.render("register", { layout: "index" });
+    res.render("register", { layout: "login_page" });
 })
 
 // rota login
 let active_user;
+
 app.post("/login", (req, res)=>{
     const usuario = req.body.user;
     const senha = req.body.password;
@@ -61,15 +79,18 @@ app.post("/login", (req, res)=>{
     let sql = `SELECT userd, passwordd 
     FROM users WHERE userd = ?`;
 
-    conexao.execute(sql, [usuario], (erro, retorno) => {
+    conexao.execute(sql, [usuario ?? null], (erro, retorno) => {
         if (erro) throw erro;
 
-        const [rows] = retorno;
-        const pass_true = bcrypt.compare(senha, rows.passwordd)
+        const rows = retorno;
+        const pass_true = bcrypt.compare(senha, rows[0].passwordd)
         if (pass_true)
         {
             console.log("Login permitido✅");
-            active_user = usuario;
+            conexao.execute("SELECT cod, userd FROM users WHERE userd = ?", [usuario ?? null], (erro, retorno) => {
+                if (erro) throw erro;
+                active_user = retorno;
+            });
             res.redirect("/formulario");
         } else {
             console.log("Login inválido❌");
@@ -81,8 +102,9 @@ app.post("/login", (req, res)=>{
 app.post("/register", (req, res) => {
     const user = req.body.user_r;
     const password = req.body.password_r;
+    let sql = `SELECT COUNT(*) AS total FROM users WHERE UPPER(userd) = UPPER(?);`
        
-    conexao.execute(`SELECT COUNT(*) AS total FROM users WHERE UPPER(userd) = UPPER(?);`, [user], (erro, retorno) => {
+    conexao.execute(sql, [user ?? null], (erro, retorno) => {
         if (erro) throw erro;
         const [rows] = retorno;
 
@@ -99,7 +121,7 @@ app.post("/register", (req, res) => {
 
         let sql =`INSERT INTO users (userd, passwordd) VALUES ( ?, ?);`;
     
-        conexao.execute(sql, [user, hashed], (erro, retorno) => {
+        conexao.execute(sql, [user ?? null, hashed ?? null], (erro, retorno) => {
             if (erro) throw erro;
             console.log(retorno);
             res.redirect("/");
@@ -107,11 +129,12 @@ app.post("/register", (req, res) => {
     });
 })
 
-
+app.use(verify_login);
 // rota para formulario
 app.get("/formulario", (req, res) => {
     let sql = `
-    SELECT 
+    SELECT
+        p.cod,
         p.named,
         p.price,
         p.imaged,
@@ -119,24 +142,24 @@ app.get("/formulario", (req, res) => {
     FROM products p
     JOIN users u ON u.cod = p.user_cod
     WHERE u.userd = ?;`;
-    conexao.execute(sql, [active_user],(erro, retorno) => {
+    conexao.execute(sql, [active_user[0].userd ?? null],(erro, retorno) => {
         if (erro) throw erro;
         res.render("formulario", { produtos: retorno, layout: "main"});
     })
 })
 
 
-app.post("/formulario", (req, res)=>{
+app.post("/cadastrar", (req, res)=>{
+    console.log("Formulario post");
     let named = req.body.named;
     let price = req.body.price;
     let imaged = req.files.imaged.name;
     
     let sql = 
-    `INSERT INTO products (named, price, imaged)
-    VALUES ("${named}", ${price}, "${imaged}")`;
-    
+    `INSERT INTO products (named, price, imaged, user_cod)
+    VALUES (?, ?, ?, ?)`;
     // Executar sql
-    conexao.query(sql, function(erro, retorno){
+    conexao.execute(sql, [named ?? null, price ?? null, imaged ?? null, active_user[0].cod ?? null], (erro, retorno) => {
         if(erro) throw erro;
         
         req.files.imaged.mv(__dirname+"/images/"+req.files.imaged.name);
@@ -144,6 +167,31 @@ app.post("/formulario", (req, res)=>{
     })
     
     res.redirect("/formulario");
+})
+
+//rota remoção
+app.get("/remover/:cod/:imaged", (req, res) => {
+    const codigo = req.params.cod;
+    const imagem = req.params.imaged;
+    let sql = `DELETE FROM products WHERE cod = ?`;
+
+    conexao.execute(sql, [codigo ?? null], (erro, retorno) => {
+        if (erro) {
+            console.error(erro);
+            return res.status(500).send("Erro ao deletar produto❌");
+        }
+        apagar_imagem(imagem);
+        res.send("Produto deletado ✅ \n log: ", retorno);
+
+    })
+})
+
+//rota alteração
+app.get("/formularioEditar", (req, res) => {
+    const codigo = req.params.cod;
+    console.log(codigo);
+    res.render("/formularioEditar", { layout: "/main"});
+
 })
 //servidor
 app.listen(8080);
