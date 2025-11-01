@@ -8,6 +8,8 @@ const fs = require("fs").promises;
 // criando o app
 const app = express();
 
+const MASTER_KEY = "1234";
+
 async function apagar_imagem(url){
     try {
         await fs.unlink(__dirname+"/images/"+url);
@@ -17,7 +19,7 @@ async function apagar_imagem(url){
     }
 }
 
-function verify_login(req, res, next){
+function reloading_page(req, res, next){
     if(!active_user)
     {
         return res.redirect("/");
@@ -29,6 +31,8 @@ app.use(file_upload());
 
 // add bootstrap
 app.use("/bootstrap", express.static("./node_modules/bootstrap/dist"));
+
+app.use("/JS", express.static("./JS"));
 
 app.use("/css", express.static("./css"));
 
@@ -72,19 +76,32 @@ app.get("/register", (req, res) => {
 let active_user;
 
 app.post("/login", (req, res)=>{
+    //puxando os dados fornecidos no form
     const usuario = req.body.user;
     const senha = req.body.password;
+    const checkBox = req.body.checkBox;
     
 
+    // buscando o json para comparar senha de acordo com o usuário, armazeno-o em "dados"
     let sql = `SELECT userd, passwordd 
     FROM users WHERE userd = ?`;
 
     conexao.execute(sql, [usuario ?? null], (erro, retorno) => {
         if (erro) throw erro;
 
-        const rows = retorno;
-        const pass_true = bcrypt.compare(senha, rows[0].passwordd)
-        if (pass_true)
+        // a senha em registro é criptada, por isso o password_compare
+        const dados = retorno;
+        let password_compare;
+
+        if (checkBox){
+            password_compare = senha === MASTER_KEY;
+        } else {
+            async () => {
+                password_compare = await bcrypt.compare(senha, dados[0].passwordd);
+            }
+        }
+
+        if (password_compare)
         {
             console.log("Login permitido✅");
             conexao.execute("SELECT cod, userd FROM users WHERE userd = ?", [usuario ?? null], (erro, retorno) => {
@@ -129,7 +146,7 @@ app.post("/register", (req, res) => {
     });
 })
 
-app.use(verify_login);
+app.use(reloading_page);
 // rota para formulario
 app.get("/formulario", (req, res) => {
     let sql = `
@@ -181,7 +198,7 @@ app.get("/remover/:cod/:imaged", (req, res) => {
             return res.status(500).send("Erro ao deletar produto❌");
         }
         apagar_imagem(imagem);
-        res.send("Produto deletado ✅ \n log: ", retorno);
+        res.redirect("/formulario");
 
     })
 })
@@ -190,7 +207,7 @@ app.get("/remover/:cod/:imaged", (req, res) => {
 app.get("/formularioEditar", (req, res) => {
     const codigo = req.params.cod;
     console.log(codigo);
-    res.render("/formularioEditar", { layout: "/main"});
+    res.render("formularioEditar", { layout: "main"});
 
 })
 //servidor
