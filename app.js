@@ -4,6 +4,7 @@ const file_upload = require("express-fileupload");
 const express = require("express");
 const mysql2 = require("mysql2");
 const bcrypt = require("bcrypt");
+const { CLIENT_RENEG_LIMIT } = require("tls");
 const fs = require("fs").promises;
 // criando o app
 const app = express();
@@ -96,9 +97,10 @@ app.post("/login", (req, res)=>{
         if (checkBox){
             password_compare = senha === MASTER_KEY;
         } else {
-            async () => {
-                password_compare = await bcrypt.compare(senha, dados[0].passwordd);
-            }
+            password_compare = (async () => {
+                return await bcrypt.compare(senha, dados[0].passwordd);
+                
+            })();
         }
 
         if (password_compare)
@@ -161,6 +163,8 @@ app.get("/formulario", (req, res) => {
     WHERE u.userd = ?;`;
     conexao.execute(sql, [active_user[0].userd ?? null],(erro, retorno) => {
         if (erro) throw erro;
+
+        console.log(retorno);
         res.render("formulario", { produtos: retorno, layout: "main"});
     })
 })

@@ -24,7 +24,7 @@
         <div class="row">
             {{#each produtos}}
             <div class="col-12 col-sm-6 col-md-4 col-lg-2">
-                <div class="card">
+                <div class="card" data-image="{{imaged}}">
                     <div class="card-image" data-image="{{imaged}}">
                         <img src="../images/{{imaged}}">
                     </div>
@@ -34,11 +34,29 @@
                     </div>
                     <div class="card-btn">
                         <a href="/formularioEditar" class="btn btn-warning" id="change-btn">Alterar</a>
-                        <a href="/remover/{{cod}}/{{imaged}}" class="btn btn-danger" id="remove-btn">Remover</a>
+                        <button class="btn btn-danger removerBtn" id="remove-btn">Remover</button>
                     </div>
                 </div>
             </div>
             {{/each}}
+        </div>
+    </div>
+
+    {{!-- Tela para confirmar remoção --}}
+    <div class="modal fade" id="modalRemover">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3>Deseja remover este produto?</h3>
+                </div>
+                <div class="modal-body" data-image="{{imaged}}">
+                    <img src="" id="modal-image">
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-success" id="confirmarBtn">SIM</button>
+                    <button class="btn btn-danger" id="cancelarBtn">NÃO</button>
+                </div>
+            </div>
         </div>
     </div>
 </main>
