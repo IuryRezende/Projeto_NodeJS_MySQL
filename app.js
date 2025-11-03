@@ -87,20 +87,21 @@ app.post("/login", (req, res)=>{
     let sql = `SELECT userd, passwordd 
     FROM users WHERE userd = ?`;
 
-    conexao.execute(sql, [usuario ?? null], (erro, retorno) => {
+    conexao.execute(sql, [usuario ?? null], async (erro, retorno) => {
         if (erro) throw erro;
 
         // a senha em registro é criptada, por isso o password_compare
         const dados = retorno;
-        let password_compare;
-
+        let password_compare = null;
         if (checkBox){
             password_compare = senha === MASTER_KEY;
         } else {
-            password_compare = (async () => {
-                return await bcrypt.compare(senha, dados[0].passwordd);
-                
-            })();
+            password_compare = await bcrypt.compare(senha, dados[0].passwordd);
+
+            console.log( await bcrypt.compare(senha, dados[0].passwordd));
+            
+            console.log(dados[0].passwordd);
+            console.log(password_compare);
         }
 
         if (password_compare)
@@ -123,7 +124,7 @@ app.post("/register", (req, res) => {
     const password = req.body.password_r;
     let sql = `SELECT COUNT(*) AS total FROM users WHERE UPPER(userd) = UPPER(?);`
        
-    conexao.execute(sql, [user ?? null], (erro, retorno) => {
+    conexao.execute(sql, [user ?? null], async (erro, retorno) => {
         if (erro) throw erro;
         const [rows] = retorno;
 
@@ -132,11 +133,7 @@ app.post("/register", (req, res) => {
             return res.status(409).json({ erro: "Usuário existente" });
         }
 
-        const hashed = 0;
-
-        async ()=>{
-            hashed = await bcrypt.hash(password, 10);
-        }
+        const hashed = await bcrypt.hash(password, 10);
 
         let sql =`INSERT INTO users (userd, passwordd) VALUES ( ?, ?);`;
     
