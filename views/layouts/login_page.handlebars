@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lojinha do Paulin</title>
+    <link rel="stylesheet" href="bootstrap/css/bootstrap.min.css">
+    <link rel="stylesheet" href="CSS/login_page.css">
+</head>
+<body>
+    {{{body}}}
+    <script>
+        const params = new URLSearchParams(window.location.search);
+        
+        // Mensagens de erro
+        const mensagensErro = {
+            'usuario_existe': 'Usuário já cadastrado! Tente outro nome.',
+            'usuario_vazio': 'Por favor, preencha o nome de usuário.',
+            'usuario_curto': 'Usuário deve ter pelo menos 3 caracteres.',
+            'servidor': 'Erro no servidor. Tente novamente.'
+        };
+        
+        // Mensagens de sucesso
+        const mensagensSucesso = {
+            'cadastrado': 'Usuário cadastrado com sucesso!',
+            'atualizado': 'Dados atualizados com sucesso!'
+        };
+        
+        // Mostra erro
+        const erro = params.get('erro');
+        if (erro && mensagensErro[erro]) {
+            mostrarToast(mensagensErro[erro], 'erro');
+        }
+        
+        // Mostra sucesso
+        const sucesso = params.get('sucesso');
+        if (sucesso && mensagensSucesso[sucesso]) {
+            mostrarToast(mensagensSucesso[sucesso], 'sucesso');
+        }
+        
+        // Função para mostrar toast
+        function mostrarToast(mensagem, tipo) {
+            const toast = document.createElement('div');
+            toast.className = `toast ${tipo}`;
+            toast.textContent = mensagem;
+            document.body.appendChild(toast);
+            
+            // Remove após 3 segundos
+            setTimeout(() => {
+                toast.style.opacity = '0';
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+            
+            // Limpa URL (remove parâmetros)
+            window.history.replaceState({}, document.title, '/');
+        }
+    </script>
+</body>
+</html>

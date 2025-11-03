@@ -1,0 +1,65 @@
+body{
+    height: 100%;
+    width: 100%;
+    background-color: brown;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+main{
+    margin-top: 10rem;
+    display: flex;
+    height: max-content;
+    width:max-content;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    color: white;
+
+}
+
+form{
+    margin-top: 2rem;
+    margin-bottom: 4rem;
+    text-align: right;
+}
+
+form input{
+    margin-bottom: 0.6rem;
+    box-shadow: 10px 10px 15px rgba(0, 0, 0, 0.5);
+}
+
+label{
+    align-self: flex-start;
+}
+
+.toast {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    padding: 15px 20px;
+    border-radius: 5px;
+    color: white;
+    font-weight: bold;
+    animation: slideIn 0.3s ease;
+}
+
+.toast.erro {
+    background-color: #f44336;
+}
+
+.toast.sucesso {
+    background-color: #4CAF50;
+}
+
+@keyframes slideIn {
+    from {
+        transform: translateX(400px);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}

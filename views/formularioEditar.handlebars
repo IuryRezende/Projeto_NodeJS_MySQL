@@ -1,0 +1,17 @@
+
+<main>
+    {{!-- Formulário --}}
+    <div class="container">
+        <div class="row">
+            <div class="col-6 offset-3">
+                <form action="/editar" method="post" enctype="multipart/form-data">
+                    <input type="text"   name= "named"class="form-control" placeholder="Nome do produto" required>
+                    <input type="number" name= "price"class="form-control" placeholder="Valor do produto" step="0.01" min="0" required>
+                    <input type="file"   name= "imaged"class="form-control" >
+                    <input type="submit" class="btn btn-secondary" value="editar">
+                    <a href="/" class="btn btn-primary">Cancelar</a>
+                </form>
+            </div>
+        </div>
+    </div>
+</main>
