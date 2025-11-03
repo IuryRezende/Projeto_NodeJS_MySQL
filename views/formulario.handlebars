@@ -25,7 +25,7 @@
             {{#each produtos}}
             <div class="col-12 col-sm-6 col-md-4 col-lg-2">
                 <div class="card" data-image="{{imaged}}">
-                    <div class="card-image" data-cod="{{cod}}" data-image="{{imaged}}">
+                    <div class="card-image" data-cod="{{cod}}" data-image="{{imaged}}" data-named="{{named}}">
                         <img src="../images/{{imaged}}">
                     </div>
                     <div class="info">
@@ -33,7 +33,7 @@
                         <p>R${{price}}</p>
                     </div>
                     <div class="card-btn">
-                        <a href="/formularioEditar" class="btn btn-warning" id="change-btn">Alterar</a>
+                        <button class="btn btn-warning changeBtn" id="change-btn">Alterar</button>
                         <button class="btn btn-danger removerBtn" id="remove-btn">Remover</button>
                     </div>
                 </div>
@@ -45,16 +45,37 @@
     {{!-- Tela para confirmar remoção --}}
     <div class="modal fade" id="modalRemover">
         <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
+            <div class="modal-content" id="modal-content-remover">
+                <div class="modal-header" id="modal-header-remover">
                     <h3>Deseja remover este produto?</h3>
                 </div>
-                <div class="modal-body" data-image="{{imaged}}">
+                <div class="modal-body" id="modal-body-remover" data-image="{{imaged}}">
                     <img src="" id="modal-image">
+                    <p id="nome-produto-remover"></p>
                 </div>
-                <div class="modal-footer">
-                    <button class="btn btn-success" id="confirmarBtn">CONFIRMAR</button>
-                    <button class="btn btn-danger" id="cancelarBtn">CANCELAR</button>
+                <div class="modal-footer" id="modal-footer-remover">
+                    <button class="btn btn-success" id="confirmar-btn-remover">CONFIRMAR</button>
+                    <button class="btn btn-danger" id="cancelar-btn-remover">CANCELAR</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {{!-- Tela para realizar alteração --}}
+    <div class="modal fade" id="modalAlterar">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="header">
+                    <h3>EDIÇÃO</h3>
+                </div>
+                <div class="modal-body">
+                    <form action="/editar" method="post" enctype="multipart/form-data">
+                        <input type="text"   name= "named"class="form-control" placeholder="Nome do produto" required>
+                        <input type="number" name= "price"class="form-control" placeholder="Valor do produto" step="0.01" min="0" required>
+                        <input type="file"   name= "imaged"class="form-control" >
+                        <input type="submit" class="btn btn-secondary" value="editar">
+                        <button class="btn btn-primary" id="cancelarBtnAlterar">Cancelar</button>
+                    </form>
                 </div>
             </div>
         </div>

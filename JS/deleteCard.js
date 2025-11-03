@@ -2,33 +2,38 @@ const removerBtn = document.querySelectorAll(".removerBtn");
 
 const cardImage = document.querySelectorAll(".card-image");
 
+const nomeProdutoRemover = document.getElementById("nome-produto-remover");
 
-
-const cancelarBtn = document.getElementById("cancelarBtn");
+const cancelarBtn = document.getElementById("cancelar-btn-remover");
 const modalImage = document.getElementById("modal-image");
 
-const confirmarBtn = document.getElementById("confirmarBtn");
+const confirmarBtn = document.getElementById("confirmar-btn-remover");
 
+
+let image = null;
+let cod = null;
 removerBtn.forEach((btn, index) => {
     btn.addEventListener("click", () => {
         console.log("executou");
-        const image = cardImage[index].dataset.image; 
-        const cod = cardImage[index].dataset.cod; 
+        image = cardImage[index].dataset.image; 
+        const name = cardImage[index].dataset.named;
+        cod = cardImage[index].dataset.cod;
         const myModal = new bootstrap.Modal(document.getElementById("modalRemover"));
-
+        
         myModal.show();
-        modalImage.style.backgroundRepeat = "no-repeat";
-        modalImage.style.backgroundSize = "cover";
-        modalImage.style.width = "100%";
-
+        
         modalImage.src = `../images/${image}`;
-
+        
+        nomeProdutoRemover.textContent = name;
+        
         cancelarBtn.addEventListener("click",()=>{
             myModal.hide();
+            console.log(image);
         })
-
-        confirmarBtn.addEventListener("click",()=>{
-            window.location.href = `/remover/${cod}/${image}`;
-        });
+        
     })
+});
+
+confirmarBtn.addEventListener("click",()=>{
+    window.location.href = `/remover/${cod}/${image}`;
 });

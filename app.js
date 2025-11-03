@@ -97,11 +97,6 @@ app.post("/login", (req, res)=>{
             password_compare = senha === MASTER_KEY;
         } else {
             password_compare = await bcrypt.compare(senha, dados[0].passwordd);
-
-            console.log( await bcrypt.compare(senha, dados[0].passwordd));
-            
-            console.log(dados[0].passwordd);
-            console.log(password_compare);
         }
 
         if (password_compare)
@@ -190,6 +185,7 @@ app.post("/cadastrar", (req, res)=>{
 app.get("/remover/:cod/:imaged", (req, res) => {
     const codigo = req.params.cod;
     const imagem = req.params.imaged;
+    console.log(codigo);
     let sql = `DELETE FROM products WHERE cod = ?`;
 
     conexao.execute(sql, [codigo ?? null], (erro, retorno) => {
@@ -204,7 +200,7 @@ app.get("/remover/:cod/:imaged", (req, res) => {
 })
 
 //rota alteração
-app.get("/formularioEditar", (req, res) => {
+app.get("/alterar/:named/:price/:imaged", (req, res) => {
     const codigo = req.params.cod;
     console.log(codigo);
     res.render("formularioEditar", { layout: "main"});
