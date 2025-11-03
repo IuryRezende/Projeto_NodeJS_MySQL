@@ -164,7 +164,6 @@ app.get("/formulario", (req, res) => {
     conexao.execute(sql, [active_user[0].userd ?? null],(erro, retorno) => {
         if (erro) throw erro;
 
-        console.log(retorno);
         res.render("formulario", { produtos: retorno, layout: "main"});
     })
 })

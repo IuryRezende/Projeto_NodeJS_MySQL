@@ -25,7 +25,7 @@
             {{#each produtos}}
             <div class="col-12 col-sm-6 col-md-4 col-lg-2">
                 <div class="card" data-image="{{imaged}}">
-                    <div class="card-image" data-image="{{imaged}}">
+                    <div class="card-image" data-cod="{{cod}}" data-image="{{imaged}}">
                         <img src="../images/{{imaged}}">
                     </div>
                     <div class="info">
@@ -53,8 +53,8 @@
                     <img src="" id="modal-image">
                 </div>
                 <div class="modal-footer">
-                    <button class="btn btn-success" id="confirmarBtn">SIM</button>
-                    <button class="btn btn-danger" id="cancelarBtn">NÃO</button>
+                    <button class="btn btn-success" id="confirmarBtn">CONFIRMAR</button>
+                    <button class="btn btn-danger" id="cancelarBtn">CANCELAR</button>
                 </div>
             </div>
         </div>
