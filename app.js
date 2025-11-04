@@ -11,6 +11,15 @@ const app = express();
 
 const MASTER_KEY = "1234";
 
+function mudarNome(fileName, user_cod){
+    const pontoIndex = fileName.lastIndexOf(".")
+
+    const nome = fileName.slice(0, pontoIndex);
+    const extensao = fileName.slice(pontoIndex);
+
+    return `${nome}_${user_cod}_${extensao}`;
+}
+
 async function apagar_imagem(url){
     try {
         await fs.unlink(__dirname+"/images/"+url);
@@ -171,11 +180,12 @@ app.post("/cadastrar", (req, res)=>{
     `INSERT INTO products (named, price, imaged, user_cod)
     VALUES (?, ?, ?, ?)`;
     // Executar sql
-    conexao.execute(sql, [named ?? null, price ?? null, imaged ?? null, active_user[0].cod ?? null], (erro, retorno) => {
+    const file_name = mudarNome(named, active_user[0].cod);
+
+    conexao.execute(sql, [named ?? null, price ?? null, file_name ?? null, active_user[0].cod ?? null], (erro, retorno) => {
         if(erro) throw erro;
         
-        req.files.imaged.mv(__dirname+"/images/"+req.files.imaged.name);
-        console.log(retorno);
+        req.files.imaged.mv(__dirname+"/images/"+file_name);
     })
     
     res.redirect("/formulario");
