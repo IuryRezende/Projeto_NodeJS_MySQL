@@ -6,18 +6,19 @@ const mysql2 = require("mysql2");
 const bcrypt = require("bcrypt");
 const { CLIENT_RENEG_LIMIT } = require("tls");
 const fs = require("fs").promises;
+const path = require("path");
 // criando o app
 const app = express();
+app.use(file_upload());
 
-const MASTER_KEY = "1234";
+const MASTER_KEY = "060423!";
 
-function mudarNome(fileName, user_cod){
-    const pontoIndex = fileName.lastIndexOf(".")
+async function mudarNome(fileName, imagedFile, user_cod){
+    const pontoIndex = imagedFile.lastIndexOf(".")
 
-    const nome = fileName.slice(0, pontoIndex);
-    const extensao = fileName.slice(pontoIndex);
+    const extensao = imagedFile.slice(pontoIndex);
 
-    return `${nome}_${user_cod}_${extensao}`;
+    return `${fileName}_${user_cod}_${extensao}`;
 }
 
 async function apagar_imagem(url){
@@ -37,17 +38,12 @@ function reloading_page(req, res, next){
     next();
 }
 
-app.use(file_upload());
 
 // add bootstrap
 app.use("/bootstrap", express.static("./node_modules/bootstrap/dist"));
-
 app.use("/JS", express.static("./JS"));
-
 app.use("/css", express.static("./css"));
-
 app.use("/images", express.static("./images"));
-
 //configuração do express-handlebars
 app.engine("handlebars", engine());
 app.set("view engine", "handlebars");
@@ -55,6 +51,7 @@ app.set("views", "./views");
 
 app.use(express.json());
 app.use(express.urlencoded({extended: false}));
+
 
 // criando conexão
 const conexao = mysql2.createConnection({
@@ -170,17 +167,16 @@ app.get("/formulario", (req, res) => {
 })
 
 
-app.post("/cadastrar", (req, res)=>{
-    console.log("Formulario post");
-    let named = req.body.named;
-    let price = req.body.price;
-    let imaged = req.files.imaged.name;
+app.post("/cadastrar", async (req, res)=>{
+    const named = req.body.named;
+    const imaged_file = req.files.imaged.name
+    const price = req.body.price;
     
     let sql = 
     `INSERT INTO products (named, price, imaged, user_cod)
     VALUES (?, ?, ?, ?)`;
     // Executar sql
-    const file_name = mudarNome(named, active_user[0].cod);
+    const file_name = await mudarNome(named, imaged_file, active_user[0].cod);
 
     conexao.execute(sql, [named ?? null, price ?? null, file_name ?? null, active_user[0].cod ?? null], (erro, retorno) => {
         if(erro) throw erro;
@@ -210,12 +206,49 @@ app.get("/remover/:cod/:imaged", (req, res) => {
 })
 
 //rota alteração
-app.get("/alterar/:named/:price/:imaged", (req, res) => {
-    const codigo = req.params.cod;
-    console.log(codigo);
-    res.render("formularioEditar", { layout: "main"});
+app.post("/editar", async (req, res) => {
+    console.log("Req.files: ", req.files);
+    console.log("Req.body: ", req.body);
+    const cod = req.body.cod_image;
+    const name = req.body.name_prod;
+    const price = req.body.price_prod;
+    const old_image = req.body.old_image_file;
+    const image_file = req.files.newImageFile;
+
+    console.log(`name: ${name}\nprice: ${price}\ncod: ${cod}\nimage: ${image_file.name}`);
+
+
+    const file_name = await mudarNome(name, image_file.name, active_user[0].cod);
+    let sql_update = `UPDATE products SET named = ?, price = ?, imaged = ? WHERE cod = ?`
+
+    conexao.execute(sql_update, [name ?? null, price ?? null, file_name ?? null, cod ?? null], async (erro, retorno) => {
+        if (erro){
+            return res.json( {sucesso: false, mensagem: "Erro ao atualizar", Erro: erro});
+        }
+        if (retorno.affectedRows === 0){
+            return res.json({sucesso: false, mensagem: "Produto não encontrado", Erro: erro});
+        }
+        console.log("old_image: ", old_image);
+        try{
+            await fs.access(__dirname+"/images/"+old_image);
+            await apagar_imagem(old_image);
+        } catch (erro){
+            if (erro.code === "ENOENT"){
+                console.log("Arquivo não existe (já foi deletado): ", old_image);
+            } else {
+                throw erro;
+            }
+        }
+        image_file.mv(__dirname+"/images/"+file_name);
+
+        res.json({
+            sucesso: true,
+            mensagem: "Produto alterado com sucesso"
+        })
+    })
 
 })
+
 //servidor
 app.listen(8080);
 

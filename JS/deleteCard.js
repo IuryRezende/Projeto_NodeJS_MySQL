@@ -1,6 +1,6 @@
-const removerBtn = document.querySelectorAll(".removerBtn");
+"use strict";
 
-const cardImage = document.querySelectorAll(".card-image");
+const removerBtn = document.querySelectorAll(".removerBtn");
 
 const nomeProdutoRemover = document.getElementById("nome-produto-remover");
 
@@ -10,14 +10,12 @@ const modalImage = document.getElementById("modal-image");
 const confirmarBtn = document.getElementById("confirmar-btn-remover");
 
 
-let image = null;
-let cod = null;
 removerBtn.forEach((btn, index) => {
     btn.addEventListener("click", () => {
         console.log("executou");
         image = cardImage[index].dataset.image; 
         const name = cardImage[index].dataset.named;
-        cod = cardImage[index].dataset.cod;
+        cod_image = cardImage[index].dataset.cod;
         const myModal = new bootstrap.Modal(document.getElementById("modalRemover"));
         
         myModal.show();
@@ -35,5 +33,6 @@ removerBtn.forEach((btn, index) => {
 });
 
 confirmarBtn.addEventListener("click",()=>{
-    window.location.href = `/remover/${cod}/${image}`;
+    console.log(image);
+    window.location.href = `/remover/${cod_image}/${image}`;
 });

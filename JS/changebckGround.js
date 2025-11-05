@@ -1,3 +1,5 @@
+"use strict";
+
 function mudarImagem(image){
     overlay.style.backgroundImage = `url('../images/${image}')`;
     overlay.style.opacity = 1;

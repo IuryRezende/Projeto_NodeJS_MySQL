@@ -25,7 +25,7 @@
             {{#each produtos}}
             <div class="col-12 col-sm-6 col-md-4 col-lg-2">
                 <div class="card" data-image="{{imaged}}">
-                    <div class="card-image" data-cod="{{cod}}" data-image="{{imaged}}" data-named="{{named}}">
+                    <div class="card-image" data-cod="{{cod}}" data-image="{{imaged}}" data-named="{{named}}" data-price="{{price}}">
                         <img src="../images/{{imaged}}">
                     </div>
                     <div class="info">
@@ -69,11 +69,11 @@
                     <h3>EDIÇÃO</h3>
                 </div>
                 <div class="modal-body">
-                    <form action="/editar" method="post" enctype="multipart/form-data">
-                        <input type="text"   name= "named"class="form-control" placeholder="Nome do produto" required>
-                        <input type="number" name= "price"class="form-control" placeholder="Valor do produto" step="0.01" min="0" required>
-                        <input type="file"   name= "imaged"class="form-control" >
-                        <input type="submit" class="btn btn-secondary" value="editar">
+                    <form enctype="multipart/form-data" id="form-alterar">
+                        <input type="text"  id="name-prod" class="form-control" placeholder="Nome do produto" required>
+                        <input type="number" id="price-prod" class="form-control" placeholder="Valor do produto" step="0.01" min="0" required>
+                        <input type="file"   name="newImageFile" id="image-file" class="form-control" >
+                        <input type="submit" class="btn btn-secondary" value="editar" id="btn-editar">
                         <button class="btn btn-primary" id="cancelarBtnAlterar">Cancelar</button>
                     </form>
                 </div>
