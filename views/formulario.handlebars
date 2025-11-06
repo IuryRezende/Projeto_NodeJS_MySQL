@@ -64,18 +64,20 @@
     {{!-- Tela para realizar alteração --}}
     <div class="modal fade" id="modalAlterar">
         <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="header">
-                    <h3>EDIÇÃO</h3>
+            <div class="modal-content" id="modal-content-edit">
+                <div class="header" id="header-edit">
+                    <h3>EDITING</h3>
                 </div>
-                <div class="modal-body">
+                <div class="modal-body" id="modal-body-edit">
                     <form enctype="multipart/form-data" id="form-alterar">
                         <input type="text"  id="name-prod" class="form-control" placeholder="Nome do produto" required>
                         <input type="number" id="price-prod" class="form-control" placeholder="Valor do produto" step="0.01" min="0" required>
                         <input type="file"   name="newImageFile" id="image-file" class="form-control" >
-                        <input type="submit" class="btn btn-secondary" value="editar" id="btn-editar">
-                        <button class="btn btn-primary" id="cancelarBtnAlterar">Cancelar</button>
                     </form>
+                </div>
+                <div class="modal-footer col-sm-6" id="modal-footer-edit">
+                    <input type="submit" class="btn btn-secondary" value="Edit" id="btn-editar">
+                    <button class="btn btn-primary" id="cancelarBtnAlterar">Cancel</button>
                 </div>
             </div>
         </div>
