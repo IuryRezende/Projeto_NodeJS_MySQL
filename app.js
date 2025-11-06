@@ -4,7 +4,6 @@ const file_upload = require("express-fileupload");
 const express = require("express");
 const mysql2 = require("mysql2");
 const bcrypt = require("bcrypt");
-const { CLIENT_RENEG_LIMIT } = require("tls");
 const fs = require("fs").promises;
 const path = require("path");
 // criando o app
@@ -188,7 +187,7 @@ app.post("/cadastrar", async (req, res)=>{
 })
 
 //rota remoção
-app.get("/remover/:cod/:imaged", (req, res) => {
+app.delete("/formulario/remover/:cod/:imaged", (req, res) => {
     const codigo = req.params.cod;
     const imagem = req.params.imaged;
     console.log(codigo);
@@ -196,17 +195,19 @@ app.get("/remover/:cod/:imaged", (req, res) => {
 
     conexao.execute(sql, [codigo ?? null], (erro, retorno) => {
         if (erro) {
-            console.error(erro);
-            return res.status(500).send("Erro ao deletar produto❌");
+            return res.json({sucesso: false, mensagem: "Erro ao deletar produto❌", error: erro});
         }
-        apagar_imagem(imagem);
-        res.redirect("/formulario");
-
+        try{
+            apagar_imagem(imagem);
+            res.json({ sucesso: true, mensagem: "Produto deletado com sucesso✅", error: "" });
+        } catch (erro){
+            res.json({ sucesso: true, mensagem: "Erro ao deletar imagem❌", error: erro });
+        }
     })
 })
 
 //rota alteração
-app.post("/editar", async (req, res) => {
+app.put("/formulario/editar", async (req, res) => {
     console.log("Req.files: ", req.files);
     console.log("Req.body: ", req.body);
     const cod = req.body.cod_image;

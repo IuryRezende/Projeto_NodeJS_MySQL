@@ -1,13 +1,13 @@
 "use strict";
 
 async function editar(form_response) {
-    fetch("/editar", {
-        method: "POST",
+    fetch("/formulario/editar", {
+        method: "PUT",
         body: form_response
     })
     .then(resposta => resposta.json())
     .then(dados => {
-        dados.sucesso ? alert("Sucesso: ", dados.mensagem) : alert("Erro: ", dados.mensagem);
+        toast(dados.mensagem, dados.sucesso, dados.error);
     })
 
 }
@@ -19,6 +19,7 @@ const formAlterar = document.getElementById("form-alterar");
 const changeBtn = document.querySelectorAll(".changeBtn");
 const cancelarBtnAlterar = document.getElementById("cancelarBtnAlterar");
 
+const myModalEditar = new bootstrap.Modal(document.getElementById("modalAlterar"));
 
 changeBtn.forEach((btn, index) => {
     btn.addEventListener("click", () =>{
@@ -26,12 +27,11 @@ changeBtn.forEach((btn, index) => {
         cod_image = cardImage[index].dataset.cod;
         image = cardImage[index].dataset.image;
 
-        const myModal = new bootstrap.Modal(document.getElementById("modalAlterar"));
 
-        myModal.show();
+        myModalEditar.show();
 
         cancelarBtnAlterar.addEventListener("click", ()=>{
-            myModal.hide();
+            myModalEditar.hide();
         })
     })
 });
@@ -44,11 +44,9 @@ formAlterar.addEventListener("submit", async (e) => {
 
     const inputImageFile = document.getElementById("image-file");
 
-    console.log("Recebeu o input: ", inputImageFile, "\n\n\n");
 
     const newImageFile = inputImageFile.files[0]
     
-    console.log("Armazenou a imagem: ", newImageFile, "\n\n\n");
 
     const formData = new FormData();
 
@@ -59,6 +57,12 @@ formAlterar.addEventListener("submit", async (e) => {
     formData.append("old_image_file", image);
 
     editar(formData);
+
+    (async () => {
+        myModalEditar.hide();
+        await sleep(3000);
+        window.location.reload();
+    })();
 })
 
 
